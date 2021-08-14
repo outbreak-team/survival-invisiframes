@@ -1,11 +1,20 @@
-# Survival Invisiframes
+# Survival Invisiframes fork
 
 This plugin enables the use of 1.16's invisible item frames for survival players
+In 1.17+, glowing invisible item frames can be crafted with the glowing item frames.
+The recipe center item and all messages are configurable.
 
-Invisible item frames are crafted similar to tipped arrows - one lingering invisibility potion surrounded by 8 item frames\
-![Recipe Screenshot](https://i.imgur.com/RtX84ic.png)
+Changes of this fork:
+- Ability to customize messages
+- Craft of glowing invisible item frames with glowing item frames instead of regular item frames.
+- Code refactoring
+- Changes in `config.yml` (so the old config is not supported)
 
-In 1.17+, an invisible item frame can be crafted with a glow ink sac to create a glowing invisible item frame
+## Crafting
+![Recipe Screenshot1](https://i.imgur.com/c9xZMZ4.png)
+![Recipe Screenshot2](https://i.imgur.com/2mXXewm.png)
+
+
 
 ## Permissions
 Permission | Description
@@ -23,25 +32,7 @@ Permission required for all commands: `survivalinvisiframes.cmd`
 
 Command | Description | Permission
 --- | --- | ---
-`/iframe` or `/iframe get` | Gives the player an invisible item frame | `survivalinvisiframes.get`
+`/iframe get [glow] [count]` | Gives the player an invisible item frame | `survivalinvisiframes.get`
 `/iframe reload` | Reloads the config | `survivalinvisiframes.reload`
 `/iframe force-recheck` | Rechecks all loaded invisible item frames to add/remove slimes manually | `survivalinvisiframes.forcerecheck`
 `/iframe setitem` | Sets the recipe center item to the held item | `survivalinvisiframes.setitem`
-
-## Config
-```yaml
-# Whether or not to enable invisible item frames glowing when there's no item in them
-# This will also make them visible when there's no item in them
-item-frames-glow: true
-
-# The item in the center of the recipe
-# Recommended to use "/iframe setitem" to change this
-recipe:
-  ==: org.bukkit.inventory.ItemStack
-  v: 2567
-  type: LINGERING_POTION
-  meta:
-    ==: ItemMeta
-    meta-type: POTION
-    potion-type: minecraft:invisibility
-```

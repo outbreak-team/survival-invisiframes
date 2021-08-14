@@ -1,6 +1,5 @@
 package com.darkender.plugins.survivalinvisiframes;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,58 +14,75 @@ import java.util.List;
 
 public class InvisiFramesCommand implements CommandExecutor, TabCompleter
 {
-    private SurvivalInvisiframes survivalInvisiframes;
+    private final SurvivalInvisiframes plugin;
     
-    public InvisiFramesCommand(SurvivalInvisiframes survivalInvisiframes)
-    {
-        this.survivalInvisiframes = survivalInvisiframes;
+    public InvisiFramesCommand(SurvivalInvisiframes plugin) {
+        this.plugin = plugin;
     }
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
+        String permMsg = command.getPermissionMessage();
         if(args.length == 0 || args[0].equalsIgnoreCase("get"))
         {
-            giveItem(sender);
+            if(!(sender instanceof Player)) {
+                sender.sendMessage(Locale.PLAYER_ONLY.str());
+                return true;
+            }
+            if (!sender.hasPermission("survivalinvisiframes.get")) {
+                sender.sendMessage(permMsg);
+                return true;
+            }
+
+            boolean glow = false;
+            int count = 1;
+            if (SurvivalInvisiframes.isGlowItemFramesSupported()) {
+                for (String arg : args) {
+                    if (arg.equalsIgnoreCase("glow")) {
+                        glow = true;
+                        break;
+                    }
+                }
+            }
+            try {
+                count = Integer.parseInt(args[args.length-1]);
+            } catch (Exception ignore) {}
+            giveItem(sender, glow, count);
             return true;
         }
         else if(args[0].equalsIgnoreCase("reload"))
         {
-            if(!sender.hasPermission("survivalinvisiframes.reload"))
-            {
-                sendNoPermissionMessage(sender);
+            if(!sender.hasPermission("survivalinvisiframes.reload")) {
+                sender.sendMessage(permMsg);
                 return true;
             }
-            survivalInvisiframes.reload();
-            sender.sendMessage(ChatColor.GREEN + "Reloaded!");
+            plugin.reload();
+            sender.sendMessage(Locale.RELOAD.str());
             return true;
         }
         else if(args[0].equalsIgnoreCase("force-recheck"))
         {
-            if(!sender.hasPermission("survivalinvisiframes.forcerecheck"))
-            {
-                sendNoPermissionMessage(sender);
+            if(!sender.hasPermission("survivalinvisiframes.forcerecheck")) {
+                sender.sendMessage(permMsg);
                 return true;
             }
-            survivalInvisiframes.forceRecheck();
-            sender.sendMessage(ChatColor.GREEN + "Rechecked invisible item frames");
+            sender.sendMessage(Locale.RECHECK.str("count", String.valueOf(plugin.forceRecheck())));
             return true;
         }
         else if(args[0].equalsIgnoreCase("setitem"))
         {
-            if(!sender.hasPermission("survivalinvisiframes.setitem"))
-            {
-                sendNoPermissionMessage(sender);
+            if(!sender.hasPermission("survivalinvisiframes.setitem")) {
+                sender.sendMessage(permMsg);
                 return true;
             }
-            if(!(sender instanceof Player))
-            {
-                sender.sendMessage(ChatColor.RED + "Sorry, you must be a player to use this command!");
+            if(!(sender instanceof Player)) {
+                sender.sendMessage(Locale.PLAYER_ONLY.str());
                 return true;
             }
             ItemStack item = ((Player) sender).getInventory().getItemInMainHand();
-            survivalInvisiframes.setRecipeItem(item);
-            sender.sendMessage(ChatColor.GREEN + "Recipe item updated!");
+            plugin.setRecipeItem(item);
+            sender.sendMessage(Locale.RECIPE_ITEM_UPDATED.str());
             return true;
         }
         return false;
@@ -75,53 +91,42 @@ public class InvisiFramesCommand implements CommandExecutor, TabCompleter
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args)
     {
-        if(args.length != 1)
-        {
-            return Collections.emptyList();
-        }
         List<String> options = new ArrayList<>();
-        if(sender.hasPermission("survivalinvisiframes.get"))
-        {
-            options.add("get");
-        }
-        if(sender.hasPermission("survivalinvisiframes.reload"))
-        {
-            options.add("reload");
-        }
-        if(sender.hasPermission("survivalinvisiframes.forcerecheck"))
-        {
-            options.add("force-recheck");
-        }
-        if(sender.hasPermission("survivalinvisiframes.setitem"))
-        {
-            options.add("setitem");
+        String arg = "";
+        if (args.length == 1) {
+            arg = args[0];
+            if(sender.hasPermission("survivalinvisiframes.get"))
+            {
+                options.add("get");
+            }
+            if(sender.hasPermission("survivalinvisiframes.reload"))
+            {
+                options.add("reload");
+            }
+            if(sender.hasPermission("survivalinvisiframes.forcerecheck"))
+            {
+                options.add("force-recheck");
+            }
+            if(sender.hasPermission("survivalinvisiframes.setitem"))
+            {
+                options.add("setitem");
+            }
+        } else if (args.length == 2 && SurvivalInvisiframes.isGlowItemFramesSupported()) {
+            arg = args[1];
+            options.add("glow");
         }
         List<String> completions = new ArrayList<>();
-        StringUtil.copyPartialMatches(args[0], options, completions);
+        StringUtil.copyPartialMatches(arg, options, completions);
         Collections.sort(completions);
-        return completions;
+        return options;
     }
     
-    private void sendNoPermissionMessage(CommandSender sender)
+    private void giveItem(CommandSender sender, boolean glowing_frame, int count)
     {
-        sender.sendMessage(ChatColor.RED + "Sorry, you don't have permission to run this command");
-    }
-    
-    private void giveItem(CommandSender sender)
-    {
-        if(!sender.hasPermission("survivalinvisiframes.get"))
-        {
-            sendNoPermissionMessage(sender);
-            return;
-        }
-        if(!(sender instanceof Player))
-        {
-            sender.sendMessage(ChatColor.RED + "Sorry, you must be a player to use this command!");
-            return;
-        }
-        
         Player player = (Player) sender;
-        player.getInventory().addItem(SurvivalInvisiframes.generateInvisibleItemFrame());
-        player.sendMessage(ChatColor.GREEN + "Added an invisible item frame to your inventory");
+        ItemStack itemStack = SurvivalInvisiframes.generateInvisibleItemFrame(glowing_frame);
+        itemStack.setAmount(count);
+        player.getInventory().addItem(itemStack);
+        player.sendMessage(Locale.ADDED_TO_YOUR_INVENTORY.str());
     }
 }

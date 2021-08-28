@@ -1,5 +1,6 @@
 package com.darkender.plugins.survivalinvisiframes;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -85,6 +86,39 @@ public class InvisiFramesCommand implements CommandExecutor, TabCompleter
             sender.sendMessage(Locale.RECIPE_ITEM_UPDATED.str());
             return true;
         }
+        else if(args[0].equalsIgnoreCase("give"))
+        {
+            if(!sender.hasPermission("survivalinvisiframes.give")) {
+                sender.sendMessage(permMsg);
+                return true;
+            }
+
+            Player target = Bukkit.getPlayerExact(args[1]);
+
+            if(target instanceof  Player) {
+                boolean glow = false;
+                int count = 1;
+
+                if (SurvivalInvisiframes.isGlowItemFramesSupported() && args.length >= 3 && args[2].equalsIgnoreCase("glow")) {
+                            glow = true;
+                }
+
+                try {
+                        count = Integer.parseInt(args[args.length-1]);
+                } catch (Exception ignore) {}
+
+                giveItem(target, glow, count);
+
+                if(count > 1)
+                    sender.sendMessage(Locale.ADDED_TO_ANOTHER_PLAYER_INV_MULTIPLE.str().replaceAll("%player%", target.getName()).replaceAll("%count%", String.valueOf(count)));
+                else
+                    sender.sendMessage(Locale.ADDED_TO_ANOTHER_PLAYER_INV.str().replaceAll("%player%", target.getName()));
+            }
+            else {
+                sender.sendMessage(Locale.PLAYER_NOT_EXIST.str());
+            }
+            return true;
+        }
         return false;
     }
     
@@ -111,7 +145,21 @@ public class InvisiFramesCommand implements CommandExecutor, TabCompleter
             {
                 options.add("setitem");
             }
-        } else if (args.length == 2 && SurvivalInvisiframes.isGlowItemFramesSupported()) {
+            if(sender.hasPermission("survivalinvisiframes.give"))
+            {
+                options.add("give");
+            }
+        } else if (args.length == 2  && SurvivalInvisiframes.isGlowItemFramesSupported() && args[0].equalsIgnoreCase("get")) {
+            arg = args[1];
+            options.add("glow");
+        } else if (args.length == 2  && SurvivalInvisiframes.isGlowItemFramesSupported() && args[0].equalsIgnoreCase("give")) {
+            Player[] players = new Player[Bukkit.getServer().getOnlinePlayers().size()];
+            Bukkit.getServer().getOnlinePlayers().toArray((players));
+            for(int i = 0; i< players.length; i++)
+            {
+                options.add(players[i].getName());
+            }
+        } else if (args.length == 3  && SurvivalInvisiframes.isGlowItemFramesSupported() && args[0].equalsIgnoreCase("give")) {
             arg = args[1];
             options.add("glow");
         }
@@ -127,6 +175,10 @@ public class InvisiFramesCommand implements CommandExecutor, TabCompleter
         ItemStack itemStack = SurvivalInvisiframes.generateInvisibleItemFrame(glowing_frame);
         itemStack.setAmount(count);
         player.getInventory().addItem(itemStack);
-        player.sendMessage(Locale.ADDED_TO_YOUR_INVENTORY.str());
+
+        if(count > 1)
+            player.sendMessage(Locale.ADDED_TO_YOUR_INVENTORY_MULTIPLE.str().replaceAll("%count%", String.valueOf(count)));
+        else
+            player.sendMessage(Locale.ADDED_TO_YOUR_INVENTORY.str());
     }
 }

@@ -9,6 +9,7 @@ Changes of this fork:
 - Craft of glowing invisible item frames with glowing item frames instead of regular item frames.
 - Code refactoring
 - Changes in `config.yml` (so the old config is not supported)
+- Adds `/iframe give [player] [glow] [count]` command
 
 ## Crafting
 ![Recipe Screenshot1](https://i.imgur.com/c9xZMZ4.png)
@@ -25,6 +26,7 @@ Permission | Description
 `survivalinvisiframes.reload` | Permission to run `/iframe reload`
 `survivalinvisiframes.forcerecheck` | Permission to run `/iframe force-recheck`
 `survivalinvisiframes.get` | Permission to run `/iframe get`
+`survivalinvisiframes.give` | Permission to run `/iframe give`
 `survivalinvisiframes.setitem` | Permission to run `/iframe setitem`
 
 ## Commands
@@ -33,6 +35,7 @@ Permission required for all commands: `survivalinvisiframes.cmd`
 Command | Description | Permission
 --- | --- | ---
 `/iframe get [glow] [count]` | Gives the player an invisible item frame | `survivalinvisiframes.get`
+`/iframe give [player] [glow/count] [count]` | Gives the specified player an invisible item frame | `survivalinvisiframes.give`
 `/iframe reload` | Reloads the config | `survivalinvisiframes.reload`
 `/iframe force-recheck` | Rechecks all loaded invisible item frames to add/remove slimes manually | `survivalinvisiframes.forcerecheck`
 `/iframe setitem` | Sets the recipe center item to the held item | `survivalinvisiframes.setitem`

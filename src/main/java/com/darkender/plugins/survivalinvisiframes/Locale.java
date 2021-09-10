@@ -10,6 +10,10 @@ public enum Locale {
     RECHECK("locale.recheck"),
     PLAYER_ONLY("locale.player-only"),
     ADDED_TO_YOUR_INVENTORY("locale.added-to-your-inventory"),
+    ADDED_TO_YOUR_INVENTORY_MULTIPLE("locale.added-to-your-inventory-multiple"),
+    ADDED_TO_ANOTHER_PLAYER_INV("locale.given-item"),
+    ADDED_TO_ANOTHER_PLAYER_INV_MULTIPLE("locale.given-multiple"),
+    PLAYER_NOT_EXIST("locale.player-not-exist"),
     RECIPE_ITEM_UPDATED("locale.recipe-item-updated"),
 
     INV_ITEMFRAME_DISPLAYNAME("locale.invisible-itemframe-displayname"),
